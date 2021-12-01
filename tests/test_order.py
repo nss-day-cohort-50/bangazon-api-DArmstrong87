@@ -3,9 +3,8 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from django.core.management import call_command
 from django.contrib.auth.models import User
-
-from bangazon_api.models import Order, Product
-
+from bangazon_api.models import Order, Product, PaymentType
+import datetime
 
 class OrderTests(APITestCase):
     def setUp(self):
@@ -38,10 +37,21 @@ class OrderTests(APITestCase):
         """The orders list should return a list of orders for the logged in user"""
         response = self.client.get('/api/orders')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 3)
 
     def test_delete_order(self):
         response = self.client.delete(f'/api/orders/{self.order1.id}')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     # TODO: Complete Order test
+    def test_complete_order(self):
+
+        order = Order()
+        order.user = User.objects.get(pk=1)
+        order.save()
+        
+        url = f"/api/orders/{order.id}/complete"
+        data = {"paymentTypeId": 1}
+        
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

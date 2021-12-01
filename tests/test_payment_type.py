@@ -11,7 +11,7 @@ class PaymentTests(APITestCase):
         """
         Seed the database
         """
-        call_command('seed_db', user_count=1)
+        call_command('seed_db', user_count=3)
         self.user1 = User.objects.filter(store=None).first()
         self.token = Token.objects.get(user=self.user1)
 

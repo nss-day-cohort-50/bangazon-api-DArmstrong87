@@ -1,6 +1,8 @@
+from bangazon_api.models.favorite import Favorite
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -99,3 +101,42 @@ class StoreView(ViewSet):
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
         except Store.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+        
+    @swagger_auto_schema(
+        method='POST',
+        responses={
+            201: openapi.Response(
+                description="Store was added as a favorite.",
+                schema=MessageSerializer()
+            ),
+            404: openapi.Response(
+                description="Store does not exist.",
+                schema=MessageSerializer()
+            ),
+        }
+    )
+    @action(methods=['post', 'delete'], detail=True)
+    def favorite(self, request,pk):
+        customer=request.auth.user
+        store=Store.objects.get(pk=pk)
+
+
+        if request.method == "POST":
+            try:
+                # favorite=Favorite.objects.get(store=store, customer=customer)
+                favorite = Favorite.objects.create(
+                    customer=customer,
+                    store=store
+                )
+                return Response({"message": f"You have added {store.name} as a favorite."}, status=status.HTTP_201_CREATED)
+            except Exception as ex:
+                return Response({"message": ex.args[0]})
+        elif request.method == "DELETE":
+            customer=request.auth.user
+            store=Store.objects.get(pk=pk)
+            favorite= Favorite.objects.get(customer=customer, store=store)
+            try:
+                favorite.delete()
+                return Response({"message": f"{store.name} removed as a favorite."})
+            except ValidationError:
+                return Response({'message': 'Store does not exist'}, status=status.HTTP_404_NOT_FOUND)

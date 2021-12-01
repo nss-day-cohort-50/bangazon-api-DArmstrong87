@@ -1,5 +1,8 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from bangazon_api.models.like import Like
+
+from bangazon_api.models.rating import Rating
 
 
 class Product(models.Model):
@@ -7,7 +10,7 @@ class Product(models.Model):
     store = models.ForeignKey(
         "Store", on_delete=models.CASCADE, related_name='products')
     price = models.FloatField(validators=[
-        MinValueValidator(0.00), MaxValueValidator(10000.00)])
+        MinValueValidator(0.00), MaxValueValidator(17500.00)])
     description = models.TextField()
     quantity = models.IntegerField()
     location = models.CharField(max_length=100)
@@ -28,13 +31,15 @@ class Product(models.Model):
         """
         # TODO: Fix Divide by zero error
         # The below code returns a divide by zero error uncomment and fix
-
-        # total_rating = 0
-        # for rating in self.ratings.all():
-        #     total_rating += rating.rating
-
-        # avg = total_rating / self.ratings.count()
-        # return avg
+        total_rating = 0
+        for rating in self.ratings.all():
+            total_rating += rating.score
+        try:
+            avg = total_rating / self.ratings.count()
+        except ZeroDivisionError:
+            avg = 0
+            
+        return avg
 
     def __str__(self):
         return self.name
