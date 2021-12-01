@@ -230,7 +230,6 @@ class ProductView(ViewSet):
             product = Product.objects.get(pk=pk)
             order, _ = Order.objects.get_or_create(
                 user=request.auth.user, completed_on=None, payment_type=None)
-            order.products.add(product)
             return Response({'message': 'product added'}, status=status.HTTP_201_CREATED)
         except Product.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)

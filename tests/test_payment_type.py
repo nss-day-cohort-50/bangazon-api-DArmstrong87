@@ -1,3 +1,4 @@
+from bangazon_api.models import PaymentType
 from faker import Faker
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -37,3 +38,10 @@ class PaymentTests(APITestCase):
         self.assertIsNotNone(response.data['id'])
         self.assertEqual(response.data["merchant_name"], data['merchant'])
         self.assertEqual(response.data["acct_number"], data['acctNumber'])
+        
+    def test_delete_payment_type(self):
+        payment_type = PaymentType()
+        payment_type.customer=self.user1
+        payment_type.save()
+        response = self.client.delete(f'/api/payment-types/{payment_type.id}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

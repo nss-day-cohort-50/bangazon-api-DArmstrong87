@@ -3,8 +3,8 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 from django.core.management import call_command
 from django.contrib.auth.models import User
-from bangazon_api.models import Order, Product, PaymentType
-import datetime
+from bangazon_api.models import Order, Product
+from datetime import datetime
 
 class OrderTests(APITestCase):
     def setUp(self):
@@ -55,3 +55,12 @@ class OrderTests(APITestCase):
         
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_add_to_order(self):
+        self.order1.completed_on = datetime.now()
+        self.order1.save()
+        product = Product.objects.get(pk=1)
+        self.order1.products.add(product)
+        url="/api/products/1/add_to_order"
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
