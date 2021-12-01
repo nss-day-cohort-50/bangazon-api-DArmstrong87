@@ -43,5 +43,6 @@ class PaymentTests(APITestCase):
         payment_type = PaymentType()
         payment_type.customer=self.user1
         payment_type.save()
-        response = self.client.delete(f'/api/payment-types/{payment_type.id}', format='json')
+        url=f'/api/payment-types/{payment_type.id}'
+        response = self.client.delete(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

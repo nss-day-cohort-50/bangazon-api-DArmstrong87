@@ -7,8 +7,7 @@ from rest_framework.authtoken.models import Token
 from django.core.management import call_command
 from django.contrib.auth.models import User
 from bangazon_api.helpers import STATE_NAMES
-from bangazon_api.models import Category
-from bangazon_api.models.product import Product
+from bangazon_api.models import Category, Product, Store
 
 
 class ProductTests(APITestCase):
@@ -16,7 +15,7 @@ class ProductTests(APITestCase):
         """
 
         """
-        call_command('seed_db', user_count=2)
+        call_command('seed_db', user_count=3)
         self.user1 = User.objects.filter(store__isnull=False).first()
         self.token = Token.objects.get(user=self.user1)
 
@@ -46,7 +45,6 @@ class ProductTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIsNotNone(response.data['id'])
 
-
     def test_update_product(self):
         """
         Ensure we can update a product.
@@ -61,7 +59,8 @@ class ProductTests(APITestCase):
             "imagePath": "",
             "categoryId": product.category.id
         }
-        response = self.client.put(f'/api/products/{product.id}', data, format='json')
+        response = self.client.put(
+            f'/api/products/{product.id}', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         product_updated = Product.objects.get(pk=product.id)
@@ -75,3 +74,23 @@ class ProductTests(APITestCase):
         response = self.client.get('/api/products')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Product.objects.count())
+
+    # def test_delete_product(self):
+    #     """
+    #     Ensure we can delete a product.
+    #     """
+
+        
+    #     product = Product()
+    #     product.name = "Name"
+    #     product.price = 20
+    #     product.description = "Description"
+    #     product.quantity = 10
+    #     product.location = "TN"
+    #     product.category = Category.objects.first()
+    #     product.store = 
+    #     product.save()
+        
+    #     url = f"/api/products/{product.id}"
+    #     response = self.client.delete(url)
+    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
