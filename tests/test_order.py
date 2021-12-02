@@ -63,11 +63,11 @@ class OrderTests(APITestCase):
         self.order1.completed_on= datetime.now()
         self.order1.save()
         data= {
-            "order_id": Order.objects.get(
-                user=self.user1, completed_on=None, payment_type=None).id,
-            "product_id": Product.objects.get(pk=2).id
+            "order": Order.objects.get_or_create(
+                user=self.user1, completed_on=None, payment_type=None),
+            "product": Product.objects.get(pk=2)
         }
         url=f"/api/products/1/add_to_order"
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.order2.completed_on, None)
