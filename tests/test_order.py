@@ -70,4 +70,5 @@ class OrderTests(APITestCase):
         url=f"/api/products/1/add_to_order"
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNot(self.order1.completed_on, None)
         self.assertEqual(self.order2.completed_on, None)
