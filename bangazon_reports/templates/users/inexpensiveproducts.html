@@ -6,10 +6,10 @@
     <title>Bangazon Reports</title>
   </head>
   <body>
-    <h1>Products Over $1000</h1>
+    <h1>Products Under $1000</h1>
 
     <ol>
-    {% for product in expensive_products %}
+    {% for product in inexpensive_products %}
     <li>
 
         <h2>${{product.price}} {{ product.name }} sold by {{product.store}} </h2>

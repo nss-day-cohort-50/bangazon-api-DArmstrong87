@@ -5,7 +5,7 @@ from django.views import View
 from bangazon_reports.views.helpers import dict_fetch_all
 
 
-class ExpensiveProducts(View):
+class InexpensiveProducts(View):
     def get(self, request):
         with connection.cursor() as db_cursor:
             db_cursor.execute("""
@@ -15,23 +15,23 @@ class ExpensiveProducts(View):
                              FROM bangazon_api_product p
                              JOIN bangazon_api_store s
                              on p.store_id = s.id
-                             WHERE price >= 1000
+                             WHERE price <= 1000
                              ORDER By price desc
-                              """)
+                             """)
 
             dataset = dict_fetch_all(db_cursor)
-            expensive_products = []
+            inexpensive_products = []
             for row in dataset:
-                expensive_products.append({
+                inexpensive_products.append({
                     "name": row['Product'],
                     "price": row['price'],
                     "store": row["Store"]
                 })
 
-        template = 'users/expensiveproducts.html'
+        template = 'users/inexpensiveproducts.html'
 
         context = {
-            "expensive_products": expensive_products
+            "inexpensive_products": inexpensive_products
         }
 
         return render(request, template, context)
