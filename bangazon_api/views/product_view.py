@@ -179,10 +179,10 @@ class ProductView(ViewSet):
 
         if category is not None:
             products = products.filter(category__id=category)
-            
+
         if min_price is not None:
             products = products.filter(price__gte=min_price)
-            
+
         if location is not None:
             products = products.filter(location__contains=location)
 
@@ -227,9 +227,11 @@ class ProductView(ViewSet):
     def add_to_order(self, request, pk):
         """Add a product to the current users open order"""
         try:
-            product = Product.objects.get(pk=pk)
             order, _ = Order.objects.get_or_create(
-                user=request.auth.user, completed_on=None, payment_type=None)
+                user=request.auth.user,
+                completed_on=None, payment_type=None)
+            orderproduct = OrderProduct.objects.create(order=order,
+                                                       product=Product.objects.get(pk=pk))
             return Response({'message': 'product added'}, status=status.HTTP_201_CREATED)
         except Product.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
@@ -254,7 +256,8 @@ class ProductView(ViewSet):
             product = Product.objects.get(pk=pk)
             order = Order.objects.get(
                 user=request.auth.user, completed_on=None)
-            order_product = OrderProduct.objects.get(product=product, order=order)
+            order_product = OrderProduct.objects.get(
+                product=product, order=order)
             order_product.delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except Product.DoesNotExist as ex:
@@ -346,13 +349,12 @@ class ProductView(ViewSet):
             )
 
         return Response({'message': 'Rating added'}, status=status.HTTP_201_CREATED)
-    
 
     @action(methods=['post', 'delete'], detail=True, url_path='like')
     def like_product(self, request, pk):
         """Rate a product"""
         product = Product.objects.get(pk=pk)
-        customer=request.auth.user
+        customer = request.auth.user
 
         if request.method == "POST":
             try:
@@ -373,14 +375,14 @@ class ProductView(ViewSet):
                 return Response({"message": f"You have removed like for {product.name}"})
             except Like.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            
+
     @action(methods=['get'], detail=False, url_path="liked")
     def liked_products(self, request):
-        
+
         liked_products = []
         likes = Like.objects.all().filter(customer=request.auth.user.id)
         for like in likes:
             liked_products.append(Product.objects.get(pk=like.product.id))
-        
+
         serializer = ProductSerializer(liked_products, many=True)
         return Response(serializer.data)

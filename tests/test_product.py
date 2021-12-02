@@ -1,4 +1,5 @@
 import random
+from bangazon_api.models.rating import Rating
 import faker_commerce
 from faker import Faker
 from rest_framework import status
@@ -7,7 +8,8 @@ from rest_framework.authtoken.models import Token
 from django.core.management import call_command
 from django.contrib.auth.models import User
 from bangazon_api.helpers import STATE_NAMES
-from bangazon_api.models import Category, Product, Store
+from bangazon_api.models import Category, Product
+
 
 
 class ProductTests(APITestCase):
@@ -51,7 +53,7 @@ class ProductTests(APITestCase):
         """
 
         product = Product.objects.first()
-        
+
         data = {
             "name": product.name,
             "price": product.price,
@@ -81,8 +83,27 @@ class ProductTests(APITestCase):
         """
         Ensure we can delete a product.
         """
-        product= Product.objects.first()
+        product = Product.objects.first()
 
         url = f"/api/products/{product.id}"
         response = self.client.delete(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_add_rating(self):
+        """
+        Ensure we can add a rating to a product.
+        """
+        product = Product.objects.first()
+        data = {
+            "score": 5,
+            "customer_id": self.user1.id,
+            "product_id": product.id
+        }
+
+        url = f"/api/products/{product.id}/rate-product"
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        url = f"/api/products/{product.id}"
+        response = self.client.get(url)
+        self.assertIsNot(product.average_rating, None)
