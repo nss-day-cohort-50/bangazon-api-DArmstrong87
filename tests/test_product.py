@@ -49,7 +49,9 @@ class ProductTests(APITestCase):
         """
         Ensure we can update a product.
         """
+
         product = Product.objects.first()
+        
         data = {
             "name": product.name,
             "price": product.price,
@@ -75,22 +77,12 @@ class ProductTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), Product.objects.count())
 
-    # def test_delete_product(self):
-    #     """
-    #     Ensure we can delete a product.
-    #     """
+    def test_delete_product(self):
+        """
+        Ensure we can delete a product.
+        """
+        product= Product.objects.first()
 
-        
-    #     product = Product()
-    #     product.name = "Name"
-    #     product.price = 20
-    #     product.description = "Description"
-    #     product.quantity = 10
-    #     product.location = "TN"
-    #     product.category = Category.objects.first()
-    #     product.store = 
-    #     product.save()
-        
-    #     url = f"/api/products/{product.id}"
-    #     response = self.client.delete(url)
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        url = f"/api/products/{product.id}"
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

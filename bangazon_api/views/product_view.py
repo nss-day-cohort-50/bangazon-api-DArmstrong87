@@ -69,7 +69,7 @@ class ProductView(ViewSet):
 
         try:
             product = Product.objects.get(
-                pk=pk, store__seller=request.auth.user)
+                pk=pk)
             product.name = request.data['name']
             product.price = request.data['price']
             product.description = request.data['description']
@@ -96,7 +96,7 @@ class ProductView(ViewSet):
     def destroy(self, request, pk):
         """Delete a product"""
         try:
-            product = Product.objects.get(pk=pk, store__user=request.auth.user)
+            product = Product.objects.get(pk=pk)
             product.delete()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except Product.DoesNotExist as ex:
