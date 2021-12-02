@@ -120,13 +120,15 @@ class StoreView(ViewSet):
         customer=request.auth.user
         store=Store.objects.get(pk=pk)
 
-
         if request.method == "POST":
             try:
-                # favorite=Favorite.objects.get(store=store, customer=customer)
-                favorite = Favorite.objects.create(
-                    customer=customer,
-                    store=store
+                try:
+                    favorite=Favorite.objects.get(customer=customer, store=store)
+                    return Response ({"message": f"You have already added {store.name} as a favorite."})
+                except Favorite.DoesNotExist:
+                    favorite = Favorite.objects.create(
+                        customer=customer,
+                        store=store
                 )
                 return Response({"message": f"You have added {store.name} as a favorite."}, status=status.HTTP_201_CREATED)
             except Exception as ex:
